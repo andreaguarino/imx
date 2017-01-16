@@ -42,10 +42,10 @@ var myObject = {
 }
 
 var myObject2 = new CompositeValue(
-  [ new NamedValue("a", new Value(2))
+  [ new NamedValue("a", new SimpleValue(2))
   , new NamedValue("b", new CompositeValue(
-    [ new NamedValue("c", new Value(3))]))
-  , new NamedValue("d", new Value(4))
+    [ new NamedValue("c", new SimpleValue(3))]))
+  , new NamedValue("d", new SimpleValue(4))
   ]);
 
 // function up(z: Zipper<any>) : Zipper<any> {

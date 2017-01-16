@@ -1,27 +1,83 @@
-type Item<A> = Value<A> | CompositeValue<A>
+type Value<A> = SimpleValue<A> | CompositeValue<A>
 
 interface CompositeValue<A> {
   kind: "object",
   values: NamedValue<A>[]
 }
 
-interface Value<A> {
+interface SimpleValue<A> {
   kind: "value",
   value: A
 }
 
 interface NamedValue<A> {
   key: string,
-  value: Item<A>
+  value: Value<A>
 }
 
 interface Crumb<A> {
-  parentKey: Maybe<string>,
-  beforeProps: Item<A>[]
-  afterProps: Item<A>[]
+  parentKey: string,
+  otherProps: NamedValue<A>[]
 }
 
-type Zipper<A> = [Item<A>, Crumb<A>[]]
+type Zipper<A> = [Value<A>, IterableIterator<Crumb<A>>]
+
+function SimpleValue<A>(value: A) : SimpleValue<A>{
+  return {
+    kind: "value",
+    value: value
+  }
+}
+
+function NamedValue<A>(key: string, value: Value<A>) : NamedValue<A> {
+  return {
+    key,
+    value
+  };
+}
+
+function CompositeValue<A>(values: NamedValue<A> []) : CompositeValue<A> {
+  return {
+    kind: "object",
+    values
+  };
+}
+
+function Crumb<A>(parentKey: string, otherProps: NamedValue<A> []) : Crumb<A> {
+  return {
+    parentKey,
+    otherProps
+  }
+}
+
+const test : Value<number> = CompositeValue([
+  NamedValue("a", SimpleValue(1)),
+  NamedValue("b", CompositeValue([
+    NamedValue("c", SimpleValue(2))
+  ])),
+  NamedValue("d", SimpleValue(3))
+]);
+
+class Aleph <A> {
+  root: Zipper<A>
+
+  static of<A>(initObj : Dictionary<A> | A) : Zipper<A>{
+    return null;
+  }
+
+  navigate(key: string) : Zipper<A>{
+    const currValue = this.root[0];
+    switch(currValue.kind) {
+      case "value" :
+        return this.root;
+      case "object": {
+        return [currValue.values.find(x => x.key === key).value, this.root[1].cons(Crumb(key, currValue.values))]
+      }
+    }
+    
+  }
+
+}
 
 class AlephObject<A> {
   private root: CompositeValue<A>
@@ -33,9 +89,9 @@ class AlephObject<A> {
   }
   getTree() { return this.root; }
   get(key: string) : AlephObject<A> {
-    let beforeProps: Item<A>[] = [];
-    let afterProps: Item<A>[] = [];
-    let found: Maybe<Item<A>>;
+    let beforeProps: Value<A>[] = [];
+    let afterProps: Value<A>[] = [];
+    let found: Maybe<Value<A>>;
     this.root.values.forEach(v => {
       if (v.key === key) {
         found = v.value;
@@ -63,15 +119,12 @@ class AlephObject<A> {
         if (typeof v === "object" && !Array.isArray(v)) {
           return new NamedValue(k, this.buildTree(v));
         } else {
-          return new NamedValue(k, new Value(v));
+          return new NamedValue(k, new SimpleValue(v));
         }
       })
     );
   }
 
-  set(): AlephObject<A> {
-
-  }
 }
 
 interface ObjectConstructor {
@@ -79,31 +132,5 @@ interface ObjectConstructor {
   entries(o: any): [string, any][];
 }
 
-class CompositeValue<A> {
-  values: NamedValue<A>[]
-  kind: "object"
-  constructor(values: NamedValue<A>[]) {
-    this.values = values;
-  }
-}
-
-class NamedValue<A> {
-  key: string
-  value: Item<A>
-  constructor(key: string, value: Item<A>) {
-    this.value = value;
-    this.key = key;
-  }
-}
-
-class Value<A> {
-  kind: "value"
-  value: A
-  constructor(v: A) {
-    this.value = v;
-  }
-}
-
 type Dictionary<T> = { [key: string]: T }
 type Maybe<T> = T | undefined
-
