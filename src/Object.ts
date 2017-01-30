@@ -1,83 +1,50 @@
-type Value<A> = SimpleValue<A> | CompositeValue<A>
+import LazyList from "LazyList"
 
-interface CompositeValue<A> {
+export type Value<A> = SimpleValue<A> | CompositeValue<A>
+
+export interface CompositeValue<A> {
   kind: "object",
-  values: NamedValue<A>[]
+  values: LazyList.Generator<NamedValue<A>>
 }
 
-interface SimpleValue<A> {
+export interface SimpleValue<A> {
   kind: "value",
   value: A
 }
 
-interface NamedValue<A> {
+export interface NamedValue<A> {
   key: string,
   value: Value<A>
 }
 
-interface Crumb<A> {
-  parentKey: string,
-  otherProps: NamedValue<A>[]
-}
-
-type Zipper<A> = [Value<A>, IterableIterator<Crumb<A>>]
-
-function SimpleValue<A>(value: A) : SimpleValue<A>{
+export function SimpleValue<A>(value: A) : SimpleValue<A>{
   return {
     kind: "value",
     value: value
   }
 }
 
-function NamedValue<A>(key: string, value: Value<A>) : NamedValue<A> {
+export function NamedValue<A>(key: string, value: Value<A>) : NamedValue<A> {
   return {
     key,
     value
   };
 }
 
-function CompositeValue<A>(values: NamedValue<A> []) : CompositeValue<A> {
+export function CompositeValue<A>(values: LazyList.Generator<NamedValue<A>>) : CompositeValue<A> {
   return {
     kind: "object",
     values
   };
 }
 
-function Crumb<A>(parentKey: string, otherProps: NamedValue<A> []) : Crumb<A> {
-  return {
-    parentKey,
-    otherProps
-  }
-}
-
-const test : Value<number> = CompositeValue([
-  NamedValue("a", SimpleValue(1)),
-  NamedValue("b", CompositeValue([
-    NamedValue("c", SimpleValue(2))
-  ])),
-  NamedValue("d", SimpleValue(3))
-]);
-
-class Aleph <A> {
-  root: Zipper<A>
-
-  static of<A>(initObj : Dictionary<A> | A) : Zipper<A>{
-    return null;
-  }
-
-  navigate(key: string) : Zipper<A>{
-    const currValue = this.root[0];
-    switch(currValue.kind) {
-      case "value" :
-        return this.root;
-      case "object": {
-        return [currValue.values.find(x => x.key === key).value, this.root[1].cons(Crumb(key, currValue.values))]
-      }
-    }
-    
-  }
-
-}
+// const test : Value<number> = CompositeValue([
+//   NamedValue("a", SimpleValue(1)),
+//   NamedValue("b", CompositeValue([
+//     NamedValue("c", SimpleValue(2))
+//   ])),
+//   NamedValue("d", SimpleValue(3))
+// ]);
 
 class AlephObject<A> {
   private root: CompositeValue<A>
