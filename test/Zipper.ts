@@ -1,27 +1,44 @@
-import Zipper from "../src/Zipper"
+import should = require('should');
+import * as Zipper from "../src/Zipper"
 
-const object1 = Zipper.init({a: 1, b: 2, c: 3});
-const object2 = Zipper.set("a", 10, object1);
-Zipper.get("a", object1); // 1
-Zipper.get("a", object2); // 10
+describe("Zipper", () => {
+    describe("#init", function () {
+        it("should create a simple object", function () {
+            var x = {
+                a: 1,
+                b: 2,
+                c: 3
+            };
+            const xI = Zipper.init(x);
+            xI.should.be.not.null();
+            const focusedElement = xI[0];
+            focusedElement.should.have.property("kind").equal("object");
+            focusedElement.should.have.property("values");
+        })
+    });
 
-const myObj = {
-    a0: {
-        b0: {
-            c0: 1,
-            c1: 6
-        },
-        b1: 4,
-        b2: 5
-    },
-    a1: 2,
-    a2: 3
-}
+    describe("#get", function () {
+        it("should return a simple value", function () {
+            var x = {
+                a: 1,
+                b: 2,
+                c: 3
+            };
+            const xI = Zipper.init(x);
+            Zipper.get("a", xI).should.be.equal(1);
+        });
 
-const myObjImmutable = Zipper.init(myObj);
-const myObjImmutable1 = Zipper.set("a0.b0.c0", 11, myObjImmutable); 
-// [#b0, [
-//    ("b0",[b1: 4, b2: 5]),
-//    ("a0", [a1: 2, a2: 3])
-// ]]
-Zipper.set("a0.b1", 20, myObjImmutable1); // [#a0, [("a0", [a1: 2, a2: 3])]] => UP, 
+        it("should return a nested value", function () {
+            var x = {
+                a: {
+                    a1: 2
+                },
+                b: 2,
+                c: 3
+            };
+            const xI = Zipper.init(x);
+            const aI = Zipper.get("a", xI);
+            Zipper.get("a1", aI).should.be.equal(2);
+        })
+    })
+})

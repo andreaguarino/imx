@@ -1,5 +1,6 @@
-import { Value, NamedValue, SimpleValue, CompositeValue } from "Object"
-import LazyList from "LazyList"
+import { Value, NamedValue, SimpleValue, CompositeValue } from "./TreeElement"
+import * as LazyList from "./LazyList"
+import * as R from "ramda"
 
 type Zipper<A> = [Value<A>, LazyList.Generator<Crumb<A>>]
 
@@ -16,7 +17,23 @@ function Crumb<A>(parentKey: string, otherProps: LazyList.Generator<NamedValue<A
 }
 
 export function init<A>(initObj: Object): Zipper<A> {
-  return null;
+  return [buildTree(initObj), <LazyList.Generator<Crumb<A>>>LazyList.nil()];
+}
+
+function buildTree(initObj: Object) : CompositeValue<any>{
+  return CompositeValue(
+    Object.keys(initObj)
+    .reduce<LazyList.Generator<any>>(
+      (list, k : string) => {
+        const v = initObj[k];
+        if (typeof v === "object" && !Array.isArray(v)) {
+          return LazyList.cons(NamedValue(k, buildTree(v)), list);
+        } else {
+          return LazyList.cons(NamedValue(k, SimpleValue(v)), list);
+        }
+      },
+      LazyList.nil())
+    );
 }
 
 function navigate<A>(key: string, zipper: Zipper<A>): Zipper<A> {
@@ -44,14 +61,14 @@ function navigate<A>(key: string, zipper: Zipper<A>): Zipper<A> {
  * Zipper.get("b.c", myObj) // 2
  * ```
  */
-export function get<A>(key: string, zipper: Zipper<A>) : A | Zipper<A> {
+export function get<A>(key: string, zipper: Zipper<A>): A | Zipper<A> {
   const currValue = zipper[0];
   switch (currValue.kind) {
     case "value":
       return currValue.value;
     case "object":
       const nextValue = LazyList.find(x => x.key === key, currValue.values).value;
-      switch(nextValue.kind) {
+      switch (nextValue.kind) {
         case "value":
           return nextValue.value;
         case "object":
@@ -71,16 +88,20 @@ export function get<A>(key: string, zipper: Zipper<A>) : A | Zipper<A> {
  * ```
  */
 
-export function set<A>(key: string, newValue: A, zipper: Zipper<A>) : Zipper<A> {
+function _set<A>(key: string, newValue: A, zipper: Zipper<A>): Promise<Zipper<A>> {
   const currValue = zipper[0];
   switch (currValue.kind) {
     case "value":
-      return zipper;
+      return Promise.resolve(zipper);
     case "object":
       const modifiedValues = LazyList.withValue(
         x => x.key === key,
         NamedValue(key, SimpleValue(newValue)),
         currValue.values)
-      return [CompositeValue(modifiedValues), zipper[1]]
+      return Promise.resolve(
+        <Zipper<A>>[CompositeValue(modifiedValues), zipper[1]]
+      )
   }
-}
+};
+
+export const set = R.curry(_set);

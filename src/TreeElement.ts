@@ -1,4 +1,4 @@
-import LazyList from "LazyList"
+import * as LazyList from "./LazyList"
 
 export type Value<A> = SimpleValue<A> | CompositeValue<A>
 
@@ -80,24 +80,20 @@ class AlephObject<A> {
     return this;
   }
 
-  buildTree(initObj: Object): CompositeValue<A> {
-    return new CompositeValue(
-      Object.entries(initObj).map(([k, v]) => {
-        if (typeof v === "object" && !Array.isArray(v)) {
-          return new NamedValue(k, this.buildTree(v));
-        } else {
-          return new NamedValue(k, new SimpleValue(v));
-        }
-      })
-    );
-  }
+  // buildTree(initObj: Object): CompositeValue<A> {
+  //   return new CompositeValue(
+  //     Object.entries(initObj).map(([k, v]) => {
+  //       if (typeof v === "object" && !Array.isArray(v)) {
+  //         return new NamedValue(k, this.buildTree(v));
+  //       } else {
+  //         return new NamedValue(k, new SimpleValue(v));
+  //       }
+  //     })
+  //   );
+  // }
 
 }
 
-interface ObjectConstructor {
-  entries<T>(o: { [s: string]: T }): [string, T][];
-  entries(o: any): [string, any][];
-}
 
 type Dictionary<T> = { [key: string]: T }
 type Maybe<T> = T | undefined
