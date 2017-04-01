@@ -44,21 +44,3 @@ export function find<A>(predicate: Predicate<A>, list: Generator<A>) : A {
     }
   }
 }
-
-
-
-var list = cons(1, cons(2, 3));
-
-
-var list2 = except(x => x === 2, list);
-
-var list3 = withValue(x => x === 2, 1, list);
-
-for (let value of list()) {
-  console.log(value)
-}
-
-for (let value of list()) {
-  console.log(value)
-}
-
