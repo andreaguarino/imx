@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "module": "commonjs",
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "./dist",
         "sourceMap": true,
-        "target": "es2015"
+        "target": "es2016"
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "test/**/*"
     ],
     "exclude": [
         "node_modules",
