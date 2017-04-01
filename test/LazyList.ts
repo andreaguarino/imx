@@ -1,8 +1,34 @@
 import should = require('should');
-import ramda = require('ramda');
-import { Generator, nil, cons, except, withValue } from "../src/LazyList";
+import R = require('ramda');
+import { Generator, fromArray, nil, cons, except, withValue } from "../src/LazyList";
 
 describe("LazyList", () => {
+    describe("#fromArray", () => {
+        it("should generate a non-empty lazy list from a non-empty array", () => {
+            const lazyList = fromArray([1, 2, 3]);
+            should(lazyList).be.not.null();
+            lazyList.should.be.a.Function();
+            const lazyListValues = [...lazyList()];
+            lazyListValues.should.not.be.empty();
+            lazyListValues.length.should.equal(3);
+        });
+
+        it("should add the elements to the lazy list in the right order",  () => {
+            const lazyList = fromArray([1, 2, 3]);
+            const lazyListValues = [...lazyList()];
+            lazyListValues[0].should.equal(1);
+            lazyListValues[lazyListValues.length - 1].should.equal(3);
+        });
+
+        it("should generate an empty lazy list from an empty array", () => {
+            const lazyList = fromArray([]);
+            should(lazyList).be.not.null();
+            lazyList.should.be.a.Function();
+            const lazyListValues = [...lazyList()];
+            lazyListValues.should.be.empty();
+        });
+    });
+
     describe("#nil", () => {
         it("should give back an empty LazyList", () => {
             const lazyList = nil();
