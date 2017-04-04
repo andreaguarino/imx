@@ -36,21 +36,61 @@ function buildTree(initObj: Object): CompositeValue<any> {
   );
 }
 
+/**
+ * Navigates around the tree object
+ * @param path 
+ * @param zipper 
+ */
 function focus<A>(path: string[], zipper: Zipper<A>): Zipper<A> {
   const currValue = zipper[0];
-  return path.reduce<Zipper<A>>(function (resultZipper, key) {
-    switch (currValue.kind) {
+  const steps = countUpSteps(path, zipper);
+  const updatedZipper = Array(steps).reduce<Zipper<A>>(
+    function (newZipper, step) {
+      return goUp(newZipper);
+    },
+    zipper
+  )
+  return path.reduce<Zipper<A>>
+    (
+    function (resultZipper, key) {
+      switch (currValue.kind) {
       case "value":
         return resultZipper;
       case "object": {
         const nextValue = LazyList.find(x => x.key === key, currValue.values);
         const nextCrumb = Crumb(key, LazyList.except(x => x.key === key, currValue.values));
-        return nextValue ?
-          [nextValue.value, LazyList.cons(nextCrumb, resultZipper[1])]
+        return nextValue 
+          ? [nextValue.value, LazyList.cons(nextCrumb, resultZipper[1])]
           : resultZipper;
       }
-    }
-  }, zipper);
+      }
+    },
+    updatedZipper
+    );
+}
+
+function countUpSteps<A>(path : string[], zipper: Zipper<A>) : number {
+  const crumbsR = [...zipper[1]()].reverse();
+  if (crumbsR.length === 0) {
+    return 0;
+  }
+  let counter = 0;
+  while (path[counter] === crumbsR[counter].parentKey && counter < path.length) {
+    counter += 1;
+  }
+  return crumbsR.length - counter;
+}
+
+export function goUp<A>(zipper: Zipper<A>) : Zipper<A> {
+  const crumbs = zipper[1];
+  const parent = LazyList.head(crumbs);
+  const focusedValue = 
+    CompositeValue(
+      LazyList.cons(
+        NamedValue(parent.parentKey,
+        zipper[0]),parent.otherProps
+      ));
+  return [focusedValue, LazyList.tail(zipper[1])]
 }
 
 /**
@@ -74,7 +114,7 @@ export function get<A>(key: string, zipper: Zipper<A>): A | Zipper<A> {
         case "value":
           return nextValue.value;
         case "object":
-          return [nextValue, LazyList.nil];
+          return [nextValue, <LazyList.Generator<Crumb<A>>> LazyList.nil()];
       }
   }
 }
@@ -93,7 +133,7 @@ export function get<A>(key: string, zipper: Zipper<A>): A | Zipper<A> {
 function _set<A>(key: string | string[], newValue: A, zipper: Zipper<A>): Promise<Zipper<A>> {
   const updatedZipper = Array.isArray(key)
     ? focus(key, zipper)
-    : zipper;
+    : focus([key], zipper);
   const lastKey = Array.isArray(key)
     ? key[key.length - 1]
     : key;

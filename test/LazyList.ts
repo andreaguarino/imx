@@ -1,6 +1,6 @@
 import should = require('should');
 import R = require('ramda');
-import { Generator, fromArray, nil, cons, except, withValue } from "../src/LazyList";
+import { Generator, fromArray, nil, cons, except, withValue, tail } from "../src/LazyList";
 
 describe("LazyList", () => {
     describe("#fromArray", () => {
@@ -192,5 +192,26 @@ describe("LazyList", () => {
             lazyListWithout2And3Values.should.not.containEql(33);
             lazyListWithout2And3Values.should.containEql(333);
         });
+    describe("#tail", () => {
+        let lazyList : Generator<number>;
+        let lazyListValues : number[];
+        
+        beforeEach (done => {
+            lazyList = nil<number>();
+            for(let i = 9; i >= 0; i--)
+                lazyList = cons(i, lazyList);
+            lazyListValues = [...lazyList()];    
+            done();
+        });
+
+        it("should be chainable with other #tail", () => {
+            const lazyListWithoutFirstTwo = 
+                tail(tail(lazyList));
+            const lazyListWithoutFirstTwoValues = [...lazyListWithoutFirstTwo()];
+            lazyListWithoutFirstTwoValues.should.not.be.empty();
+            lazyListWithoutFirstTwoValues.length.should.equal(8);
+            lazyListWithoutFirstTwoValues[0].should.be.equal(2);
+        })
+    })
     });
 });

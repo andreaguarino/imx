@@ -2,8 +2,8 @@ import should = require('should');
 import * as Zipper from "../src/Zipper"
 
 describe("Zipper", () => {
-    describe.only("#init", function () {
-        it("shoudl never give back null, but a two-elements array", function() {
+    describe("#init", function () {
+        it("should never give back null, but a two-elements array", function () {
             const x = {};
             const xI = Zipper.init(x);
 
@@ -11,32 +11,32 @@ describe("Zipper", () => {
             xI.should.be.an.Array().which.has.property("length").equal(2);
         });
 
-        it("should create a zipper with the right kind and values", function() {
+        it("should create a zipper with the right kind and values", function () {
             const x = {};
             const xI = Zipper.init(x);
 
             const focusedElement = xI[0];
             focusedElement.should.have.property("kind");
             if (focusedElement.kind !== "object") {
-               throw new Error(`invalid kind: ${focusedElement.kind}`); 
+                throw new Error(`invalid kind: ${focusedElement.kind}`);
             }
             focusedElement.should.have.property("values");
             focusedElement.values.should.be.a.Function();
         });
 
-        it("should create an empty zipper from an empty object", function() {
+        it("should create an empty zipper from an empty object", function () {
             const x = {};
             const xI = Zipper.init(x);
-            
+
             const focusedElement = xI[0];
             if (focusedElement.kind !== "object") {
-               throw new Error(`invalid kind: ${focusedElement.kind}`); 
+                throw new Error(`invalid kind: ${focusedElement.kind}`);
             }
-            
+
             const focusedElementValues = [...focusedElement.values()];
             focusedElementValues.length.should.equal(0);
         });
-        
+
         it("should create a non-empty zipper from a single-level non-empty object", function () {
             const x = {
                 a: 1,
@@ -47,7 +47,7 @@ describe("Zipper", () => {
 
             const focusedElement = xI[0];
             if (focusedElement.kind !== "object") {
-               throw new Error(`invalid kind: ${focusedElement.kind}`); 
+                throw new Error(`invalid kind: ${focusedElement.kind}`);
             }
 
             const focusedElementValues = [...focusedElement.values()];
@@ -58,16 +58,16 @@ describe("Zipper", () => {
                 .containEql("c");
             focusedElementValues
                 .map(nv => nv.value)
-                .map(v => v.kind  === "value" ? v.value : null)
+                .map(v => v.kind === "value" ? v.value : null)
                 .filter(v => v != null)
                 .should
-                    .containEql(1)
-                    .containEql(2)
-                    .containEql(3);
+                .containEql(1)
+                .containEql(2)
+                .containEql(3);
         });
 
-        it("should create a multi-level zipper from a multi-level object", function() {
-             const x = {
+        it("should create a multi-level zipper from a multi-level object", function () {
+            const x = {
                 a: {
                     a1: 1,
                     a2: {
@@ -83,13 +83,13 @@ describe("Zipper", () => {
 
             const focusedElement = xI[0];
             if (focusedElement.kind !== "object") {
-               throw new Error(`invalid kind: ${focusedElement.kind}`); 
+                throw new Error(`invalid kind: ${focusedElement.kind}`);
             }
 
             const focusedElementValues = [...focusedElement.values()];
             focusedElementValues.length.should.equal(3);
             const firstSubElement = focusedElementValues.filter(e => e.key === "a");
-            
+
             // TODO: to be continue from here
             /*
             firstSubElement.length.should.equal(1);
@@ -129,9 +129,56 @@ describe("Zipper", () => {
                 b: 2,
                 c: 3
             };
-            const xI = Zipper.init(x);
+            const xI = Zipper.init<number>(x);
             const aI = Zipper.get("a", xI);
-            Zipper.get("a1", aI).should.be.equal(2);
-        })
+            if (Array.isArray(aI)) {
+                Zipper.get("a1", aI).should.be.equal(2);
+            }
+        });
+    });
+
+    describe.only("#set", function () {
+        it("should modify a one level zipper", function () {
+            const x = {
+                a: 1,
+                b: 2,
+                c: 3
+            };
+            const xI = Zipper.init<number>(x);
+            Zipper.set("a", 5, xI).then(nextZipper => {
+                should(nextZipper).be.not.null;
+                nextZipper[0].should.have.property("kind").equal("value");
+                nextZipper[0].should.have.property("value").equal(5);
+                const crumbs = [...nextZipper[1]()];
+                crumbs.length.should.be.equal(1);
+                crumbs[0].should.have.property("parentKey").equal("a");
+                const otherProps = [...crumbs[0].otherProps()];
+                otherProps.length.should.be.equal(2);
+            })
+        });
+
+        it("should modify a multi level zipper", function () {
+            const x = {
+                a: 1,
+                b: {
+                    b1: 2
+                },
+                c: {
+                    c1: 3
+                }
+            };
+            const xI = Zipper.init<number>(x);
+            Zipper.set(["b", "b1"], 5, xI).then(nextZipper => {
+                should(nextZipper).be.not.null;
+                nextZipper[0].should.have.property("kind").equal("value");
+                nextZipper[0].should.have.property("value").equal(5);
+                const crumbs = [...nextZipper[1]()];
+                console.log(crumbs);
+                crumbs.length.should.be.equal(2);
+                crumbs[0].should.have.property("parentKey").equal("b1");
+                const otherProps = [...crumbs[0].otherProps()];
+                otherProps.length.should.be.equal(0);
+            })
+        });
     })
 })

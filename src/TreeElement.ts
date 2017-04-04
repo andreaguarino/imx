@@ -46,53 +46,53 @@ export function CompositeValue<A>(values: LazyList.Generator<NamedValue<A>>) : C
 //   NamedValue("d", SimpleValue(3))
 // ]);
 
-class AlephObject<A> {
-  private root: CompositeValue<A>
-  private crumb: Crumb<A>[]
+// class AlephObject<A> {
+//   private root: CompositeValue<A>
+//   private crumb: Crumb<A>[]
 
-  constructor(initObj: Object) {
-    this.root = this.buildTree(initObj);
-    this.crumb = []
-  }
-  getTree() { return this.root; }
-  get(key: string) : AlephObject<A> {
-    let beforeProps: Value<A>[] = [];
-    let afterProps: Value<A>[] = [];
-    let found: Maybe<Value<A>>;
-    this.root.values.forEach(v => {
-      if (v.key === key) {
-        found = v.value;
-      } else {
-        if (found) {
-          afterProps.push(v.value);
-        } else {
-          beforeProps.push(v.value);
-        }
-      }
-    });
-    if (found) {
-      this.crumb = this.crumb.concat({
-        parentKey: key,
-        beforeProps: [],
-        afterProps: []
-      });
-    }
-    return this;
-  }
+//   constructor(initObj: Object) {
+//     this.root = this.buildTree(initObj);
+//     this.crumb = []
+//   }
+//   getTree() { return this.root; }
+//   get(key: string) : AlephObject<A> {
+//     let beforeProps: Value<A>[] = [];
+//     let afterProps: Value<A>[] = [];
+//     let found: Maybe<Value<A>>;
+//     this.root.values.forEach(v => {
+//       if (v.key === key) {
+//         found = v.value;
+//       } else {
+//         if (found) {
+//           afterProps.push(v.value);
+//         } else {
+//           beforeProps.push(v.value);
+//         }
+//       }
+//     });
+//     if (found) {
+//       this.crumb = this.crumb.concat({
+//         parentKey: key,
+//         beforeProps: [],
+//         afterProps: []
+//       });
+//     }
+//     return this;
+//   }
 
-  // buildTree(initObj: Object): CompositeValue<A> {
-  //   return new CompositeValue(
-  //     Object.entries(initObj).map(([k, v]) => {
-  //       if (typeof v === "object" && !Array.isArray(v)) {
-  //         return new NamedValue(k, this.buildTree(v));
-  //       } else {
-  //         return new NamedValue(k, new SimpleValue(v));
-  //       }
-  //     })
-  //   );
-  // }
+//   // buildTree(initObj: Object): CompositeValue<A> {
+//   //   return new CompositeValue(
+//   //     Object.entries(initObj).map(([k, v]) => {
+//   //       if (typeof v === "object" && !Array.isArray(v)) {
+//   //         return new NamedValue(k, this.buildTree(v));
+//   //       } else {
+//   //         return new NamedValue(k, new SimpleValue(v));
+//   //       }
+//   //     })
+//   //   );
+//   // }
 
-}
+// }
 
 
 type Dictionary<T> = { [key: string]: T }

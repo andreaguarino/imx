@@ -50,3 +50,19 @@ export function find<A>(predicate: Predicate<A>, list: Generator<A>) : A {
     }
   }
 }
+
+export function head<A>(list: Generator<A>) : A {
+  return list().next().value;
+}
+
+export function tail<A>(list: Generator<A>) : Generator<A> {
+  return function* () {
+    let index = 0;
+    for (let item of list()) {
+      if (index !== 0) {
+        yield item;
+      }
+      index += 1;
+    }
+  }
+}
