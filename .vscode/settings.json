@@ -1,4 +1,5 @@
 // Inserire le impostazioni in questo file per sovrascrivere quelle utente e predefinite.
 {
-    "prettier.formatOnSave": true
+    "prettier.formatOnSave": true,
+    "editor.formatOnSave": true
 }

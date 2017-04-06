@@ -57,12 +57,8 @@ export function head<A>(list: Generator<A>) : A {
 
 export function tail<A>(list: Generator<A>) : Generator<A> {
   return function* () {
-    let index = 0;
-    for (let item of list()) {
-      if (index !== 0) {
-        yield item;
-      }
-      index += 1;
-    }
+    let iterator = list();
+    iterator.next();
+    yield* iterator;
   }
 }
