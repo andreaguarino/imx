@@ -3,6 +3,38 @@ import * as LazyList from "./LazyList"
 import * as R from "ramda"
 
 export type Zipper<A> = [Value<A>, LazyList.Generator<Crumb<A>>]
+class Dictionary { [key: string]: any }
+
+export class Aleph<A> {
+  zipper: Zipper<A>
+  constructor(initialZipper: Zipper<A>) {
+    this.zipper = initialZipper;
+  }
+  get(key: string) {
+    const result = get(key, this.zipper);
+    if (Array.isArray(result)) {
+      return new Aleph(result);
+    }
+    return result;
+  }
+  set(key: string | string[], newValue: A) {
+    return _set(key, newValue, this.zipper)
+      .then(newZipper => new Aleph(newZipper));
+  }
+}
+
+export var Context = new Proxy({
+  storedVars: Dictionary,
+  init(obj: Object, name: string) {
+    this.storedVars[name] = new Aleph(init<any>(obj));
+    return this.storedVars[name];
+  }
+}, {
+    set(obj, prop, newval) {
+      obj.storedVars[prop] = newval;
+      return true;
+    }
+  });
 
 interface Crumb<A> {
   parentKey: string,

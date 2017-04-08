@@ -137,7 +137,7 @@ describe("Zipper", () => {
     });
   });
 
-  describe.only("#set", function () {
+  describe("#set", function () {
     it("should modify a one level zipper", function () {
       const x = {
         a: 1,
@@ -227,11 +227,40 @@ describe("Zipper", () => {
       const bI = Zipper.get("b", xI);
       Zipper
         .set(["b1"], 5, bI)
-        .then((bI2, xI2) => {
+        .then((bI2) => {
           const bI_2 = <Zipper.Zipper<number>>Zipper.get("b", xI);
           Zipper.get("b1", bI_2).should.be.equal(2);
           bI2[0].should.have.property("value").equal(5);
         });
     })
   })
-})
+
+  describe("#Context", function () {
+    it("should #get and #set", function () {
+      const x = {
+        a: 1,
+        b: {
+          b1: 2
+        },
+        c: {
+          c1: 3
+        }
+      };
+      const ImmutableContext = Zipper.Context.init(x, "xI");
+      ImmutableContext
+        .set(["b", "b1"], 5)
+        .then(ImmutableContext1 => ImmutableContext1.set(["c", "c1"], 10))
+        .then(ImmutableContext2 => {
+          should(ImmutableContext2).be.not.null;
+          ImmutableContext2.zipper[0].should.have.property("kind").equal("value");
+          ImmutableContext2.zipper[0].should.have.property("value").equal(10);
+          const crumbs = [...ImmutableContext2.zipper[1]()];
+          console.log(crumbs);
+          crumbs.length.should.be.equal(2);
+          crumbs[0].should.have.property("parentKey").equal("c1");
+          const otherProps = [...crumbs[0].otherProps()];
+          otherProps.length.should.be.equal(0);
+        })
+    })
+  })
+});
