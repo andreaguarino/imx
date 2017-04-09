@@ -208,7 +208,7 @@ describe("Zipper", () => {
         })
     })
 
-    it("should update zippers taken from #get", function () {
+    it("should work with async/await", function () {
       const x = {
         a: 1,
         b: {
@@ -218,20 +218,25 @@ describe("Zipper", () => {
           c1: 3
         }
       };
-      const xI = Zipper.init<number>(x);
+      (async function env() {
+        const xI = Zipper.init<number>(x);
+        const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
+        should(nextZipper).be.not.null;
+        nextZipper[0].should.have.property("kind").equal("value");
+        nextZipper[0].should.have.property("value").equal(5);
+        const crumbs = [...nextZipper[1]()];
+        crumbs.length.should.be.equal(2);
+        crumbs[0].should.have.property("parentKey").equal("b1");
+        const otherProps = [...crumbs[0].otherProps()];
+        otherProps.length.should.be.equal(0);
+      })();
+
+
       /**
        * bI could be a function.
        * When call set on bI => different behaviour on the promise
        * The promise can return also the new xI
        */
-      const bI = Zipper.get("b", xI);
-      Zipper
-        .set(["b1"], 5, bI)
-        .then((bI2, xI2) => {
-          const bI_2 = <Zipper.Zipper<number>>Zipper.get("b", xI);
-          Zipper.get("b1", bI_2).should.be.equal(2);
-          bI2[0].should.have.property("value").equal(5);
-        });
     })
   })
 })
