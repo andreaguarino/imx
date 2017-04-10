@@ -93,18 +93,22 @@ export function goUp<A>(zipper: Zipper<A>): Zipper<A> {
   return [focusedValue, LazyList.tail(zipper[1])]
 }
 
-/**
- * Usage:
- * ```javascript
- * // {a: 2}
- * Zipper.get("a", myObj); // => 2
- * // {b: {c: 2}}
- * Zipper.get("b", myObj); // [#b, null]
- * Zipper.get("b.c", myObj) // 2
- * ```
- */
-export function get<A>(key: string, zipper: Zipper<A>): A | Zipper<A> {
-  const currValue = zipper[0];
+export function get<A>(key: string | string[], zipper: Zipper<A>): A | Zipper<A> {
+  let keys = Array.isArray(key)
+    ? key
+    : [key];
+  let crumbs = [...zipper[1]()];
+  if (crumbs.length === 0) {
+    return _get()
+  }
+  while (keys.length > 0) {
+
+  }
+
+}
+
+function _get<A>([key, ...keys]: string[], currValue: Value<A>) {
+
   switch (currValue.kind) {
     case "value":
       return currValue.value;
@@ -118,17 +122,6 @@ export function get<A>(key: string, zipper: Zipper<A>): A | Zipper<A> {
       }
   }
 }
-
-/**
- * Usage:
- * ```javascript
- * // {a: 2}
- * Zipper.set("a", 3, myObj); // [3, Crumb("a", [])]
- * // {b: {c: 2}}
- * Zipper.get("b", myObj); // [#b, null]
- * Zipper.get("b.c", myObj) // 2
- * ```
- */
 
 function _set<A>(key: string | string[], newValue: A, zipper: Zipper<A>): Promise<Zipper<A>> {
   const updatedZipper = Array.isArray(key)
@@ -148,3 +141,7 @@ function _set<A>(key: string | string[], newValue: A, zipper: Zipper<A>): Promis
 };
 
 export const set = R.curry(_set);
+
+export function isZipper<A>(zipper: Object) {
+  return Array.isArray(zipper) && zipper[0] && zipper[0].kind;
+}

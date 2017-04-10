@@ -110,7 +110,7 @@ describe("Zipper", () => {
     });
   });
 
-  describe("#get", function () {
+  describe.only("#get", function () {
     it("should return a simple value", function () {
       const x = {
         a: 1,
@@ -135,9 +135,24 @@ describe("Zipper", () => {
         Zipper.get("a1", aI).should.be.equal(2);
       }
     });
+    it("should work correctly after changing the focus", async function () {
+      const x = {
+        a: {
+          a1: 2
+        },
+        b: 2,
+        c: 3
+      };
+      const xI = Zipper.init<number>(x);
+      const xI2 = await Zipper.set(["a", "a1"], 7, xI);
+      Zipper.get("b", xI2).should.be.equal(2);
+      Zipper.get("c", xI2).should.be.equal(2);
+      Zipper.get("a1", <Zipper.Zipper<number>>Zipper.get("a", xI2)).should.be.equal(7);
+      Zipper.get("a1", <Zipper.Zipper<number>>Zipper.get("a", xI)).should.be.equal(2);
+    })
   });
 
-  describe.only("#set", function () {
+  describe("#set", function () {
     it("should modify a one level zipper", function () {
       const x = {
         a: 1,
@@ -173,7 +188,6 @@ describe("Zipper", () => {
         nextZipper[0].should.have.property("kind").equal("value");
         nextZipper[0].should.have.property("value").equal(5);
         const crumbs = [...nextZipper[1]()];
-        console.log(crumbs);
         crumbs.length.should.be.equal(2);
         crumbs[0].should.have.property("parentKey").equal("b1");
         const otherProps = [...crumbs[0].otherProps()];
@@ -200,7 +214,6 @@ describe("Zipper", () => {
           xI2[0].should.have.property("kind").equal("value");
           xI2[0].should.have.property("value").equal(10);
           const crumbs = [...xI2[1]()];
-          console.log(crumbs);
           crumbs.length.should.be.equal(2);
           crumbs[0].should.have.property("parentKey").equal("c1");
           const otherProps = [...crumbs[0].otherProps()];
@@ -208,7 +221,7 @@ describe("Zipper", () => {
         })
     })
 
-    it("should work with async/await", function () {
+    it("should work with async/await", async function () {
       const x = {
         a: 1,
         b: {
@@ -218,25 +231,19 @@ describe("Zipper", () => {
           c1: 3
         }
       };
-      (async function env() {
-        const xI = Zipper.init<number>(x);
-        const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
-        should(nextZipper).be.not.null;
-        nextZipper[0].should.have.property("kind").equal("value");
-        nextZipper[0].should.have.property("value").equal(5);
-        const crumbs = [...nextZipper[1]()];
-        crumbs.length.should.be.equal(2);
-        crumbs[0].should.have.property("parentKey").equal("b1");
-        const otherProps = [...crumbs[0].otherProps()];
-        otherProps.length.should.be.equal(0);
-      })();
+
+      const xI = Zipper.init<number>(x);
+      const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
+      should(nextZipper).be.not.null;
+      nextZipper[0].should.have.property("kind").equal("value");
+      nextZipper[0].should.have.property("value").equal(5);
+      const crumbs = [...nextZipper[1]()];
+      crumbs.length.should.be.equal(2);
+      crumbs[0].should.have.property("parentKey").equal("b1");
+      const otherProps = [...crumbs[0].otherProps()];
+      otherProps.length.should.be.equal(0);
 
 
-      /**
-       * bI could be a function.
-       * When call set on bI => different behaviour on the promise
-       * The promise can return also the new xI
-       */
     })
   })
 })
