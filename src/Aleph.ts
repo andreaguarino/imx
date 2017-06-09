@@ -14,9 +14,11 @@ export default class Aleph {
     this.parentZipper = parentZipper || null;
     this.parentKey = parentKey || "";
   }
+
   static init(input: Object): Aleph {
     return new Aleph(Zipper.init(input));
   }
+
   get(key: string): Aleph {
     const value = Zipper.get(key, this.zipper);
     if (!Zipper.isZipper(value)) {
@@ -27,6 +29,7 @@ export default class Aleph {
     this.childrenKeys.concat(key);
     return child;
   }
+
   async set(key: string | string[], newValue: any): Promise<Aleph[]> {
     let res: Aleph[] = [];
     // normal set on the focused object
@@ -34,7 +37,7 @@ export default class Aleph {
     // modify the parent Zipper - TODO: this should be lazy
     if (this.parentZipper) {
       const modifiedParent = await Zipper.set(
-        `${this.parentKey}.${key}`,
+        [this.parentKey, key],
         newValue,
         this.parentZipper.zipper
       );
@@ -44,7 +47,13 @@ export default class Aleph {
     let i = 0;
     for (let child of this.childrenZippers) {
       res = res.concat(
-        new Aleph(await Zipper.set(`${key}.${this.childrenKeys[i]}`, newValue, child.zipper))
+        new Aleph(
+          await Zipper.set(
+            [key, this.childrenKeys[i]],
+            newValue,
+            child.zipper
+          )
+        )
       );
       i += 1;
     }

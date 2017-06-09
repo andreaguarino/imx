@@ -1,4 +1,4 @@
-import should = require('should');
+import should = require("should");
 import Aleph from "../src/Aleph";
 
 describe("Aleph", () => {
@@ -49,7 +49,9 @@ describe("Aleph", () => {
       const bI = xI.get("b");
       const [bI2, xI2] = await bI.set("b1", 3);
       bI2.get("b1").should.be.equal(3);
+      const xI2_b = xI2.get("b");
+      console.log(xI2_b);
       xI2.get("b").get("b1").should.be.equal(3);
     });
   });
-})
+});

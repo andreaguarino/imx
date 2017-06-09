@@ -8,11 +8,13 @@
 			"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
 			"stopOnEntry": false,
 			"args": [
-                "-u", "tdd",
-                "--timeout", "999999",
-                "--colors",
-                "${workspaceRoot}/dist/test/**/*.js"
-            ],
+				"-u",
+				"tdd",
+				"--timeout",
+				"999999",
+				"--colors",
+				"${workspaceRoot}/dist/test/**/*.js"
+			],
 			"cwd": "${workspaceRoot}",
 			"preLaunchTask": null,
 			"runtimeExecutable": null,
