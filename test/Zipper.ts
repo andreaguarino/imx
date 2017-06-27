@@ -2,8 +2,8 @@ import should = require("should");
 import * as Zipper from "../src/Zipper";
 
 describe("Zipper", () => {
-  describe("#init", function () {
-    it("should never give back null, but a two-elements array", function () {
+  describe("#init", function() {
+    it("should never give back null, but a two-elements array", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -11,7 +11,7 @@ describe("Zipper", () => {
       xI.should.be.an.Array().which.has.property("length").equal(2);
     });
 
-    it("should create a zipper with the right kind and values", function () {
+    it("should create a zipper with the right kind and values", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -24,7 +24,7 @@ describe("Zipper", () => {
       focusedElement.values.should.be.a.Function();
     });
 
-    it("should create an empty zipper from an empty object", function () {
+    it("should create an empty zipper from an empty object", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -37,7 +37,7 @@ describe("Zipper", () => {
       focusedElementValues.length.should.equal(0);
     });
 
-    it("should create a non-empty zipper from a single-level non-empty object", function () {
+    it("should create a non-empty zipper from a single-level non-empty object", function() {
       const x = {
         a: 1,
         b: 2,
@@ -66,7 +66,7 @@ describe("Zipper", () => {
         .containEql(3);
     });
 
-    it("should create a multi-level zipper from a multi-level object", function () {
+    it("should create a multi-level zipper from a multi-level object", function() {
       const x = {
         a: {
           a1: 1,
@@ -110,8 +110,8 @@ describe("Zipper", () => {
     });
   });
 
-  describe("#get", function () {
-    it("should return a simple value", function () {
+  describe("#get", function() {
+    it("should return a simple value", function() {
       const x = {
         a: 1,
         b: 2,
@@ -121,7 +121,7 @@ describe("Zipper", () => {
       Zipper.get("a", xI).should.be.equal(1);
     });
 
-    it("should return a nested value", function () {
+    it("should return a nested value", function() {
       const x = {
         a: {
           a1: 2
@@ -135,7 +135,7 @@ describe("Zipper", () => {
         Zipper.get("a1", aI).should.be.equal(2);
       }
     });
-    it.only("should work correctly after changing the focus", async function () {
+    it("should work correctly after changing the focus", async function() {
       const x = {
         a: {
           a1: 2,
@@ -152,12 +152,13 @@ describe("Zipper", () => {
       Zipper.get(["a", "a1"], xI).should.be.equal(2);
       Zipper.get(["a", "a2"], xI2).should.be.equal(5);
       Zipper.get("a", xI2).should.be.Array();
-
+      const aI2 = Zipper.get("a", xI2);
+      Zipper.get("a1", aI2).should.be.equal(7);
     });
   });
 
-  describe("#set", function () {
-    it("should modify a one level zipper", function () {
+  describe("#set", function() {
+    it("should modify a one level zipper", function() {
       const x = {
         a: 1,
         b: 2,
@@ -176,7 +177,7 @@ describe("Zipper", () => {
       });
     });
 
-    it("should modify a multi level zipper", function () {
+    it("should modify a multi level zipper", function() {
       const x = {
         a: 1,
         b: {
@@ -199,7 +200,7 @@ describe("Zipper", () => {
       });
     });
 
-    it("should go up on two consecutive #set calls", function () {
+    it("should go up on two consecutive #set calls", function() {
       const x = {
         a: 1,
         b: {
@@ -224,7 +225,7 @@ describe("Zipper", () => {
         });
     });
 
-    it("should work with async/await", async function () {
+    it("should work with async/await", async function() {
       const x = {
         a: 1,
         b: {

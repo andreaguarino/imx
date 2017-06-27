@@ -48,11 +48,7 @@ export default class Aleph {
     for (let child of this.childrenZippers) {
       res = res.concat(
         new Aleph(
-          await Zipper.set(
-            [key, this.childrenKeys[i]],
-            newValue,
-            child.zipper
-          )
+          await Zipper.set([key, this.childrenKeys[i]], newValue, child.zipper)
         )
       );
       i += 1;

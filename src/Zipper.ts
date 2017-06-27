@@ -109,8 +109,8 @@ function unfoldMissingValues<A>(
   index: number,
   currValue: Value<A>
 ) {
-  if (index + 1 > crumbsR.length) {
-    return currValue;
+  if (index + 1 > crumbsR.length - 1) {
+    return NamedValue(crumbsR[index].parentKey, currValue);
   } else {
     return CompositeValue(
       LazyList.cons(

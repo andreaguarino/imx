@@ -3,7 +3,7 @@ import Aleph from "../src/Aleph";
 
 describe("Aleph", () => {
   describe("#get", () => {
-    it("should return a simple value", function () {
+    it("should return a simple value", function() {
       const x = {
         a: 1,
         b: {
@@ -50,7 +50,6 @@ describe("Aleph", () => {
       const [bI2, xI2] = await bI.set("b1", 3);
       bI2.get("b1").should.be.equal(3);
       const xI2_b = xI2.get("b");
-      console.log(xI2_b);
       xI2.get("b").get("b1").should.be.equal(3);
     });
   });
