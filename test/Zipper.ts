@@ -1,9 +1,9 @@
-import should = require('should');
-import * as Zipper from "../src/Zipper"
+import should = require("should");
+import * as Zipper from "../src/Zipper";
 
 describe("Zipper", () => {
-  describe("#init", function () {
-    it("should never give back null, but a two-elements array", function () {
+  describe("#init", function() {
+    it("should never give back null, but a two-elements array", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -11,7 +11,7 @@ describe("Zipper", () => {
       xI.should.be.an.Array().which.has.property("length").equal(2);
     });
 
-    it("should create a zipper with the right kind and values", function () {
+    it("should create a zipper with the right kind and values", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -24,7 +24,7 @@ describe("Zipper", () => {
       focusedElement.values.should.be.a.Function();
     });
 
-    it("should create an empty zipper from an empty object", function () {
+    it("should create an empty zipper from an empty object", function() {
       const x = {};
       const xI = Zipper.init(x);
 
@@ -37,7 +37,7 @@ describe("Zipper", () => {
       focusedElementValues.length.should.equal(0);
     });
 
-    it("should create a non-empty zipper from a single-level non-empty object", function () {
+    it("should create a non-empty zipper from a single-level non-empty object", function() {
       const x = {
         a: 1,
         b: 2,
@@ -52,21 +52,21 @@ describe("Zipper", () => {
 
       const focusedElementValues = [...focusedElement.values()];
       focusedElementValues.length.should.equal(3);
-      focusedElementValues.map(v => v.key).should
-        .containEql("a")
+      focusedElementValues
+        .map(v => v.key)
+        .should.containEql("a")
         .containEql("b")
         .containEql("c");
       focusedElementValues
         .map(nv => nv.value)
-        .map(v => v.kind === "value" ? v.value : null)
+        .map(v => (v.kind === "value" ? v.value : null))
         .filter(v => v != null)
-        .should
-        .containEql(1)
+        .should.containEql(1)
         .containEql(2)
         .containEql(3);
     });
 
-    it("should create a multi-level zipper from a multi-level object", function () {
+    it("should create a multi-level zipper from a multi-level object", function() {
       const x = {
         a: {
           a1: 1,
@@ -110,8 +110,8 @@ describe("Zipper", () => {
     });
   });
 
-  describe("#get", function () {
-    it("should return a simple value", function () {
+  describe("#get", function() {
+    it("should return a simple value", function() {
       const x = {
         a: 1,
         b: 2,
@@ -121,7 +121,7 @@ describe("Zipper", () => {
       Zipper.get("a", xI).should.be.equal(1);
     });
 
-    it("should return a nested value", function () {
+    it("should return a nested value", function() {
       const x = {
         a: {
           a1: 2
@@ -135,10 +135,30 @@ describe("Zipper", () => {
         Zipper.get("a1", aI).should.be.equal(2);
       }
     });
+    it("should work correctly after changing the focus", async function() {
+      const x = {
+        a: {
+          a1: 2,
+          a2: 5
+        },
+        b: 2,
+        c: 3
+      };
+      const xI = Zipper.init<number>(x);
+      const xI2 = await Zipper.set(["a", "a1"], 7, xI);
+      Zipper.get("b", xI2).should.be.equal(2);
+      Zipper.get("c", xI2).should.be.equal(3);
+      Zipper.get(["a", "a1"], xI2).should.be.equal(7);
+      Zipper.get(["a", "a1"], xI).should.be.equal(2);
+      Zipper.get(["a", "a2"], xI2).should.be.equal(5);
+      Zipper.get("a", xI2).should.be.Array();
+      const aI2 = Zipper.get("a", xI2);
+      Zipper.get("a1", aI2).should.be.equal(7);
+    });
   });
 
-  describe.only("#set", function () {
-    it("should modify a one level zipper", function () {
+  describe("#set", function() {
+    it("should modify a one level zipper", function() {
       const x = {
         a: 1,
         b: 2,
@@ -154,10 +174,10 @@ describe("Zipper", () => {
         crumbs[0].should.have.property("parentKey").equal("a");
         const otherProps = [...crumbs[0].otherProps()];
         otherProps.length.should.be.equal(2);
-      })
+      });
     });
 
-    it("should modify a multi level zipper", function () {
+    it("should modify a multi level zipper", function() {
       const x = {
         a: 1,
         b: {
@@ -173,15 +193,14 @@ describe("Zipper", () => {
         nextZipper[0].should.have.property("kind").equal("value");
         nextZipper[0].should.have.property("value").equal(5);
         const crumbs = [...nextZipper[1]()];
-        console.log(crumbs);
         crumbs.length.should.be.equal(2);
         crumbs[0].should.have.property("parentKey").equal("b1");
         const otherProps = [...crumbs[0].otherProps()];
         otherProps.length.should.be.equal(0);
-      })
+      });
     });
 
-    it("should go up on two consecutive #set calls", function () {
+    it("should go up on two consecutive #set calls", function() {
       const x = {
         a: 1,
         b: {
@@ -192,23 +211,21 @@ describe("Zipper", () => {
         }
       };
       const xI = Zipper.init<number>(x);
-      Zipper
-        .set(["b", "b1"], 5, xI)
+      Zipper.set(["b", "b1"], 5, xI)
         .then(Zipper.set(["c", "c1"], 10))
         .then(xI2 => {
           should(xI2).be.not.null;
           xI2[0].should.have.property("kind").equal("value");
           xI2[0].should.have.property("value").equal(10);
           const crumbs = [...xI2[1]()];
-          console.log(crumbs);
           crumbs.length.should.be.equal(2);
           crumbs[0].should.have.property("parentKey").equal("c1");
           const otherProps = [...crumbs[0].otherProps()];
           otherProps.length.should.be.equal(0);
-        })
-    })
+        });
+    });
 
-    it("should work with async/await", function () {
+    it("should work with async/await", async function() {
       const x = {
         a: 1,
         b: {
@@ -218,25 +235,17 @@ describe("Zipper", () => {
           c1: 3
         }
       };
-      (async function env() {
-        const xI = Zipper.init<number>(x);
-        const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
-        should(nextZipper).be.not.null;
-        nextZipper[0].should.have.property("kind").equal("value");
-        nextZipper[0].should.have.property("value").equal(5);
-        const crumbs = [...nextZipper[1]()];
-        crumbs.length.should.be.equal(2);
-        crumbs[0].should.have.property("parentKey").equal("b1");
-        const otherProps = [...crumbs[0].otherProps()];
-        otherProps.length.should.be.equal(0);
-      })();
 
-
-      /**
-       * bI could be a function.
-       * When call set on bI => different behaviour on the promise
-       * The promise can return also the new xI
-       */
-    })
-  })
-})
+      const xI = Zipper.init<number>(x);
+      const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
+      should(nextZipper).be.not.null;
+      nextZipper[0].should.have.property("kind").equal("value");
+      nextZipper[0].should.have.property("value").equal(5);
+      const crumbs = [...nextZipper[1]()];
+      crumbs.length.should.be.equal(2);
+      crumbs[0].should.have.property("parentKey").equal("b1");
+      const otherProps = [...crumbs[0].otherProps()];
+      otherProps.length.should.be.equal(0);
+    });
+  });
+});
