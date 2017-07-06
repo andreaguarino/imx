@@ -1,11 +1,8 @@
 {
-  "name": "aleph",
+  "name": "imx",
   "version": "0.0.1",
-  "description": "",
-  "main": "tsconfig.json",
-  "directories": {
-    "test": "test"
-  },
+  "description": "immutable extensions for JavaScript",
+  "main": "dist/src/index.js",
   "dependencies": {
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.12",
@@ -17,14 +14,13 @@
     "sinon": "^2.1.0"
   },
   "devDependencies": {
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "prettier": "^1.5.2"
   },
+  "types": "dist/src/index.d.ts",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha -u tdd --timeout 999999 ./dist/test/*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://antonioaversa@bitbucket.org/andre989/aleph.git"
+    "test": "node node_modules/mocha/bin/mocha -u tdd --timeout 999999 ./dist/test/*.js",
+    "format": "prettier --write \"**/*.ts\""
   },
   "author": "Andrea Guarino",
   "license": "MIT",

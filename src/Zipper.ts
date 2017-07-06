@@ -4,7 +4,7 @@ import * as R from "ramda";
 
 export type Zipper<A> = [Value<A>, LazyList.Generator<Crumb<A>>];
 
-interface Crumb<A> {
+export interface Crumb<A> {
   parentKey: string;
   otherProps: LazyList.Generator<NamedValue<A>>;
 }
@@ -143,9 +143,10 @@ function _findBetweenCrumbs<A>(path: string[], zipper: Zipper<A>) {
       )
     );
   } else {
-    otherProps = counter < path.length
-      ? CompositeValue(crumbsR[counter].otherProps)
-      : zipper[0];
+    otherProps =
+      counter < path.length
+        ? CompositeValue(crumbsR[counter].otherProps)
+        : zipper[0];
   }
   return _get(path.slice(counter), otherProps);
 }
@@ -169,7 +170,7 @@ function _get<A>([key, ...keys]: string[], currValue: Value<A>) {
   }
 }
 
-function _set<A>(
+export const setAll = function setAll<A>(
   key: string | string[],
   newValue: A,
   zipper: Zipper<A>
@@ -186,9 +187,24 @@ function _set<A>(
       <Zipper<A>>[SimpleValue(newValue), updatedZipper[1]]
     );
   }
-}
+};
 
-export const set = R.curry(_set);
+export const set = function set<A>(
+  key: string | string[],
+  newValue: A,
+  zipper: Zipper<A>
+): Zipper<A> {
+  const updatedZipper = Array.isArray(key)
+    ? focus(key, zipper)
+    : focus([key], zipper);
+  const lastKey = Array.isArray(key) ? key[key.length - 1] : key;
+  const currValue = updatedZipper[0];
+  if (typeof newValue === "object") {
+    return [buildTree(newValue), updatedZipper[1]];
+  } else {
+    return [SimpleValue(newValue), updatedZipper[1]];
+  }
+};
 
 export function isZipper<A>(zipper: Object) {
   return Array.isArray(zipper) && zipper[0] && zipper[0].kind;

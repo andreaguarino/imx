@@ -1,7 +1,7 @@
 import R = require("ramda");
 
 export type Generator<A> = () => IterableIterator<A>;
-type Predicate<A> = (item: A) => boolean;
+export type Predicate<A> = (item: A) => boolean;
 
 export function fromArray<A>(array: A[]): Generator<A> {
   return R.reduceRight(

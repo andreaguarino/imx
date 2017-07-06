@@ -145,19 +145,19 @@ describe("Zipper", () => {
         c: 3
       };
       const xI = Zipper.init<number>(x);
-      const xI2 = await Zipper.set(["a", "a1"], 7, xI);
+      const xI2 = await Zipper.setAll(["a", "a1"], 7, xI);
       Zipper.get("b", xI2).should.be.equal(2);
       Zipper.get("c", xI2).should.be.equal(3);
       Zipper.get(["a", "a1"], xI2).should.be.equal(7);
       Zipper.get(["a", "a1"], xI).should.be.equal(2);
       Zipper.get(["a", "a2"], xI2).should.be.equal(5);
       Zipper.get("a", xI2).should.be.Array();
-      const aI2 = Zipper.get("a", xI2);
+      const aI2 = <Zipper.Zipper<number>>Zipper.get("a", xI2);
       Zipper.get("a1", aI2).should.be.equal(7);
     });
   });
 
-  describe("#set", function() {
+  describe("#setAll", function() {
     it("should modify a one level zipper", function() {
       const x = {
         a: 1,
@@ -165,7 +165,7 @@ describe("Zipper", () => {
         c: 3
       };
       const xI = Zipper.init<number>(x);
-      Zipper.set("a", 5, xI).then(nextZipper => {
+      Zipper.setAll("a", 5, xI).then(nextZipper => {
         should(nextZipper).be.not.null;
         nextZipper[0].should.have.property("kind").equal("value");
         nextZipper[0].should.have.property("value").equal(5);
@@ -188,7 +188,7 @@ describe("Zipper", () => {
         }
       };
       const xI = Zipper.init<number>(x);
-      Zipper.set(["b", "b1"], 5, xI).then(nextZipper => {
+      Zipper.setAll(["b", "b1"], 5, xI).then(nextZipper => {
         should(nextZipper).be.not.null;
         nextZipper[0].should.have.property("kind").equal("value");
         nextZipper[0].should.have.property("value").equal(5);
@@ -211,8 +211,8 @@ describe("Zipper", () => {
         }
       };
       const xI = Zipper.init<number>(x);
-      Zipper.set(["b", "b1"], 5, xI)
-        .then(Zipper.set(["c", "c1"], 10))
+      Zipper.setAll(["b", "b1"], 5, xI)
+        .then(z => Zipper.setAll(["c", "c1"], 10, z))
         .then(xI2 => {
           should(xI2).be.not.null;
           xI2[0].should.have.property("kind").equal("value");
@@ -237,7 +237,7 @@ describe("Zipper", () => {
       };
 
       const xI = Zipper.init<number>(x);
-      const nextZipper = await Zipper.set(["b", "b1"], 5, xI);
+      const nextZipper = await Zipper.setAll(["b", "b1"], 5, xI);
       should(nextZipper).be.not.null;
       nextZipper[0].should.have.property("kind").equal("value");
       nextZipper[0].should.have.property("value").equal(5);
