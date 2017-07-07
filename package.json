@@ -1,6 +1,6 @@
 {
   "name": "imx",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Immutable Extensions for JavaScript and TypeScript",
   "main": "dist/src/index.js",
   "dependencies": {
