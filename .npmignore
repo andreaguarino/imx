@@ -1,6 +1,5 @@
 tsconfig.json
-src
-test
-dist/test
+src/
+test/
+dist/test/
 .vscode
-node_modules

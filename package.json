@@ -1,7 +1,7 @@
 {
   "name": "imx",
   "version": "0.0.2",
-  "description": "Immutable Extensions for JavaScript",
+  "description": "Immutable Extensions for JavaScript and TypeScript",
   "main": "dist/src/index.js",
   "dependencies": {
     "@types/mocha": "^2.2.40",
