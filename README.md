@@ -9,7 +9,7 @@ npm install imx
 ```
 
 ```javascript
-import {Record} from 'imx';
+import { Record } from 'imx';
 
 const x = {
   a: 2,
