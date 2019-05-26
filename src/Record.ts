@@ -33,7 +33,7 @@ export class Record {
     child.allowedProps = Object.keys(this.inputObj[key]);
     child.inputObj = this.inputObj[key];
     this.childrenRecords = this.childrenRecords.concat(child);
-    this.childrenKeys.concat(key);
+    this.childrenKeys = this.childrenKeys.concat(key);
     return child;
   }
 

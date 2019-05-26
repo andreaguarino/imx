@@ -1,5 +1,9 @@
 // Inserire le impostazioni in questo file per sovrascrivere quelle utente e predefinite.
 {
     "prettier.formatOnSave": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "sonarlint.connectedMode.project": {
+        "serverId": "sonarcloud",
+        "projectKey": "andre989_imx"
+    }
 }

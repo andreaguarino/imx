@@ -20,7 +20,7 @@ function Crumb<A>(
 }
 
 export function init<A>(initObj: Object): Zipper<A> {
-  return [buildTree(initObj), <LazyList.Generator<Crumb<A>>>LazyList.nil()];
+  return [buildTree(initObj), LazyList.nil()];
 }
 
 function buildTree(initObj: Object): CompositeValue<any> {
@@ -43,13 +43,13 @@ function buildTree(initObj: Object): CompositeValue<any> {
  */
 function focus<A>(path: string[], zipper: Zipper<A>): Zipper<A> {
   const steps = countUpSteps(path, zipper);
-  const updatedZipper = [...Array(steps).keys()].reduce<Zipper<A>>(function(
+  const updatedZipper = [...Array(steps).keys()].reduce<Zipper<A>>(function (
     newZipper,
     step
   ) {
     return goUp(newZipper);
   }, zipper);
-  return path.reduce<Zipper<A>>(function(resultZipper, key) {
+  return path.reduce<Zipper<A>>(function (resultZipper, key) {
     const currValue = resultZipper[0];
     switch (currValue.kind) {
       case "value":
@@ -157,7 +157,7 @@ function _get<A>([key, ...keys]: string[], currValue: Value<A>) {
       case "value":
         return currValue.value;
       case "object":
-        return [currValue, <LazyList.Generator<Crumb<A>>>LazyList.nil()];
+        return [currValue, LazyList.nil()];
     }
   }
   switch (currValue.kind) {
@@ -178,8 +178,6 @@ export const setAll = function setAll<A>(
   const updatedZipper = Array.isArray(key)
     ? focus(key, zipper)
     : focus([key], zipper);
-  const lastKey = Array.isArray(key) ? key[key.length - 1] : key;
-  const currValue = updatedZipper[0];
   if (typeof newValue === "object") {
     return Promise.resolve(<Zipper<A>>[buildTree(newValue), updatedZipper[1]]);
   } else {
@@ -197,8 +195,6 @@ export const set = function set<A>(
   const updatedZipper = Array.isArray(key)
     ? focus(key, zipper)
     : focus([key], zipper);
-  const lastKey = Array.isArray(key) ? key[key.length - 1] : key;
-  const currValue = updatedZipper[0];
   if (typeof newValue === "object") {
     return [buildTree(newValue), updatedZipper[1]];
   } else {
