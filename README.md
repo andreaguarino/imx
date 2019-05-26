@@ -1,3 +1,4 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=andre989_imx&metric=alert_status)](https://sonarcloud.io/dashboard?id=andre989_imx)
 # Immutable Extensions
 
 Yet another library on persistent Records in JavaScript.
