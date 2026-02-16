@@ -1,6 +1,5 @@
 import { Value, NamedValue, SimpleValue, CompositeValue } from "./TreeElement";
 import * as LazyList from "./LazyList";
-import * as R from "ramda";
 
 export type Zipper<A> = [Value<A>, LazyList.Generator<Crumb<A>>];
 
@@ -86,7 +85,7 @@ function countUpSteps<A>(path: string[], zipper: Zipper<A>): number {
 export function goUp<A>(zipper: Zipper<A>): Zipper<A> {
   const crumbs = zipper[1];
   const parent = LazyList.head(crumbs);
-  const focusedValue = CompositeValue(
+  const focusedValue: Value<A> = CompositeValue(
     LazyList.cons(NamedValue(parent.parentKey, zipper[0]), parent.otherProps)
   );
   return [focusedValue, LazyList.tail(zipper[1])];
@@ -98,9 +97,9 @@ export function get<A>(
 ): A | Zipper<A> {
   let keys = Array.isArray(key) ? key : [key];
   if (!LazyList.head(zipper[1])) {
-    return _get(keys, zipper[0]);
+    return _get(keys, zipper[0]) as A | Zipper<A>;
   } else {
-    return _findBetweenCrumbs(keys, zipper);
+    return _findBetweenCrumbs(keys, zipper) as A | Zipper<A>;
   }
 }
 
@@ -151,22 +150,22 @@ function _findBetweenCrumbs<A>(path: string[], zipper: Zipper<A>) {
   return _get(path.slice(counter), otherProps);
 }
 
-function _get<A>([key, ...keys]: string[], currValue: Value<A>) {
+function _get<A>([key, ...keys]: string[], currValue: Value<A>): A | Zipper<A> {
   if (!key) {
     switch (currValue.kind) {
       case "value":
         return currValue.value;
       case "object":
-        return [currValue, LazyList.nil()];
+        return [currValue, LazyList.nil()] as Zipper<A>;
     }
   }
   switch (currValue.kind) {
     case "value":
-      return new Error("Type Error");
-    case "object":
-      const nextValue = LazyList.find(x => x.key === key, currValue.values)
-        .value;
-      return _get(keys, nextValue);
+      return new Error("Type Error") as unknown as A;
+    case "object": {
+      const nextValue = LazyList.find(x => x.key === key, currValue.values);
+      return _get(keys, nextValue.value);
+    }
   }
 }
 

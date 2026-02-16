@@ -3,26 +3,36 @@
   "version": "0.0.3",
   "description": "Immutable Extensions for JavaScript and TypeScript",
   "main": "dist/src/index.js",
-  "dependencies": {
-    "@types/mocha": "^2.2.40",
-    "@types/node": "^7.0.12",
-    "@types/ramda": "github:types/npm-ramda",
-    "@types/should": "^8.1.30",
-    "@types/sinon": "^2.1.1",
-    "ramda": "^0.23.0",
-    "should": "^11.2.1",
-    "sinon": "^2.1.0"
-  },
-  "devDependencies": {
-    "mocha": "^3.2.0",
-    "prettier": "^1.5.2"
-  },
   "types": "dist/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha -u tdd --timeout 999999 ./dist/test/*.js",
+    "build": "tsc",
+    "test": "npm run build && mocha -u bdd --timeout 10000 dist/test/*.js",
+    "lint": "prettier --check \"**/*.ts\"",
     "format": "prettier --write \"**/*.ts\""
   },
+  "keywords": [
+    "immutable",
+    "record",
+    "persistent"
+  ],
   "author": "Andrea Guarino",
   "license": "MIT",
-  "homepage": "https://github.com/andre989/imx"
+  "homepage": "https://github.com/andre989/imx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andre989/imx.git"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.8",
+    "@types/node": "^22.10.1",
+    "@types/sinon": "^17.0.0",
+    "mocha": "^10.8.2",
+    "prettier": "^3.3.3",
+    "should": "^13.2.3",
+    "sinon": "^19.0.0",
+    "typescript": "^5.7.2"
+  }
 }

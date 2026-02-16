@@ -1,5 +1,4 @@
 import should = require("should");
-import R = require("ramda");
 import {
   Generator,
   fromArray,

@@ -1,13 +1,10 @@
-import R = require("ramda");
-
 export type Generator<A> = () => IterableIterator<A>;
 export type Predicate<A> = (item: A) => boolean;
 
 export function fromArray<A>(array: A[]): Generator<A> {
-  return R.reduceRight(
-    (item, list: Generator<A>) => cons(item, list),
-    nil<A>(),
-    array
+  return array.reduceRight(
+    (list, item) => cons(item, list),
+    nil<A>()
   );
 }
 
@@ -20,7 +17,9 @@ export function nil<A>(): Generator<A> {
 export function cons<A>(value: A, list: Generator<A> | A) {
   return function*() {
     yield value;
-    yield* typeof list === "function" ? list() : [list][Symbol.iterator]();
+    yield* typeof list === "function"
+      ? (list as Generator<A>)()
+      : [list][Symbol.iterator]();
   };
 }
 
